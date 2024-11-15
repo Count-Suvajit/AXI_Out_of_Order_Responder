@@ -74,9 +74,12 @@ module rtl();
       if(resp==0) begin
         for(int i=0; i<awlen_rr; i+=1) begin
         
-          awaddr_rrr = get_next_addr(awaddr_rr,awburst_rr,awsize_rr,i);
-          mem[awaddr_rrr] = wdata_l[i][awid_rr];
-        
+          awaddr_rrr = get_next_addr(awaddr_rr,awburst_rr,awsize_rr,awlen_rr,i);
+          start_byte_lane = awaddr_rrr%(data_bus_bytes);
+          end_byte_lane = start_byte_lane + (1<<awsize_rr) >= data_bus_bytes ? data_bus_bytes - 1 : start_byte_lane + (1<<awsize_rr);
+            for(j=start_byte_lane;j<end_byte_lane;j++) begin
+              mem[awaddr_rrr+j-start_byte_lane] = wdata_l[i][awid_rr][(1+j)*8-:8];
+            end
         end
       end
 
@@ -114,9 +117,9 @@ module rtl();
     dlen = size*len;
     wrap_boundary = aligned_addr + dlen;
     
-    next_addr = aligned_addr + size*i;
+    next_addr = i == 0 ? addr : aligned_addr + size*i; // Except 1st transfer all other transfers are aligned.
     if(burst == FIXED)
-      next_addr = aligned_addr;
+      next_addr = addr;
     else if(burst == WRAP)
       next_addr = next_addr%dlen;
     
