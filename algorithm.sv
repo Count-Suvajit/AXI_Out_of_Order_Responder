@@ -102,7 +102,7 @@ module rtl();
       bresp_q = bresp_q[1:$];
       
     end
-    if(in_progress==1 && bready==1) begin
+    else if(in_progress==1 && bready==1) begin
       
       bvalid = 0;
       in_progress = 0;
