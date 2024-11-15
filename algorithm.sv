@@ -120,7 +120,7 @@ module rtl();
     next_addr = i == 0 ? addr : aligned_addr + size*i; // Except 1st transfer all other transfers are aligned.
     if(burst == FIXED)
       next_addr = addr;
-    else if(burst == WRAP)
+    else if(burst == WRAP && i>0)
       next_addr = next_addr%dlen;
     
     return next_addr;
